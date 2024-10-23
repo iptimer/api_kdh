@@ -18,5 +18,5 @@ public interface BphotosRepository extends JpaRepository<Bphotos, Long> {
   void deleteByUuid(@Param("uuid")String uuid);
 
   @Query("select p from Bphotos p where p.boards.bno=:bno")
-  List<Bphotos> findByMno(@Param("bno") Long bno);
+  List<Bphotos> findByMid(@Param("bno") Long bno);
 }

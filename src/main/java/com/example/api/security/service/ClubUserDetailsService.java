@@ -23,7 +23,7 @@ public class ClubUserDetailsService implements UserDetailsService {
   @Override
   // DB에 있는 것 확인 된후,User를 상속받은 ClubMemberAuthDTO에 로그인정보를 담음=>세션
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    log.info("ClubMemberUser.........", username);
+    log.info("ClubMemberUser...", username);
     Optional<Members> result = membersRepository.findByEmail(username);
     if (!result.isPresent()) throw new UsernameNotFoundException("Check Email or Social");
     Members members = result.get(); // DB로부터 검색한 엔티티

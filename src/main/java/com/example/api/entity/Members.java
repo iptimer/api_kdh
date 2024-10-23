@@ -18,7 +18,10 @@ public class Members extends BasicEntity{
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long mid;
 
+  // 중복 금지 어노테이션
+  @Column(unique = true)
   private String email;
+
   private String pw;
   private String name;
   private String birth;

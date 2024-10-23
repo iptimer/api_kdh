@@ -18,7 +18,7 @@ import java.util.List;
 public class GroundsReviewsController {
   private final GroundsReviewService groundsReviewService;
 
-  @GetMapping(value = "/{gno}/all", produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "/all/{gno}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<List<GroundsReviewsDTO>> getList(@PathVariable("gno") Long gno) {
     log.info("gno: " + gno);
     List<GroundsReviewsDTO> groundsReviewsDTOList = groundsReviewService.getListOfGrounds(gno);
@@ -26,8 +26,6 @@ public class GroundsReviewsController {
   }
 
   @PostMapping("/{gno}")
-  // @RequestBody : form이나, json 데이터를 전송받을 때
-  // @RequestParam : 변수로 데이터를 전송받을 때
   public ResponseEntity<Long> register(@RequestBody GroundsReviewsDTO groundsReviewsDTO) {
     log.info(">>" + groundsReviewsDTO);
     Long grno = groundsReviewService.register(groundsReviewsDTO);
@@ -47,5 +45,4 @@ public class GroundsReviewsController {
     groundsReviewService.remove(grno);
     return new ResponseEntity<>(grno, HttpStatus.OK);
   }
-
 }

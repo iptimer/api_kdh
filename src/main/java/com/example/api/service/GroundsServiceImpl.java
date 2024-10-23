@@ -7,7 +7,7 @@ import com.example.api.entity.Grounds;
 import com.example.api.entity.Gphotos;
 import com.example.api.repository.GroundsRepository;
 import com.example.api.repository.GphotosRepository;
-import com.example.api.repository.GroundsReviewsRepository;
+import com.example.api.repository.GroundsReviewsRepository; // 다시 추가
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -29,22 +29,31 @@ import java.util.function.Function;
 public class GroundsServiceImpl implements GroundsService {
   private final GroundsRepository groundsRepository;
   private final GphotosRepository gphotosRepository;
-  private final GroundsReviewsRepository groundsreviewsRepository;
+  private final GroundsReviewsRepository groundsreviewsRepository; // 다시 추가
+
+  @Override
+  public void makeReservation(Long groundId) {
+    Grounds grounds = groundsRepository.findById(groundId)
+        .orElseThrow(() -> new RuntimeException("Ground not found"));
+
+    // 예약 가능 여부 확인
+    if (grounds.canReserve()) {
+      grounds.incrementNowPeople(); // 현재 인원 수 증가
+      groundsRepository.save(grounds); // DB에 저장
+    } else {
+      throw new RuntimeException("예약이 마감되었습니다."); // 예외 처리
+    }
+  }
+
 
   @Override
   public Long register(GroundsDTO groundsDTO) {
     Map<String, Object> entityMap = dtoToEntity(groundsDTO);
     Grounds grounds = (Grounds) entityMap.get("grounds");
-    List<Gphotos> gphotosList =
-        (List<Gphotos>) entityMap.get("gphotosList");
+    List<Gphotos> gphotosList = (List<Gphotos>) entityMap.get("gphotosList");
     groundsRepository.save(grounds);
     if (gphotosList != null) {
-      gphotosList.forEach(new Consumer<Gphotos>() {
-        @Override
-        public void accept(Gphotos gphotos) {
-          gphotosRepository.save(gphotos);
-        }
-      });
+      gphotosList.forEach(gphotosRepository::save);
     }
     return grounds.getGno();
   }
@@ -62,8 +71,7 @@ public class GroundsServiceImpl implements GroundsService {
       Grounds grounds = (Grounds) objects[0];
       List<Gphotos> gphotosList = new ArrayList<>();
       if (objects[1] != null) {
-        Gphotos gphoto = (Gphotos) objects[1];
-        gphotosList.add(gphoto);
+        gphotosList.add((Gphotos) objects[1]);
       }
       Long nowpeople = null;
       Long reviewsCnt = null;
@@ -78,7 +86,6 @@ public class GroundsServiceImpl implements GroundsService {
 
     return new PageResultDTO<>(result, fn);
   }
-
 
   @Override
   public GroundsDTO getGrounds(Long gno) {
@@ -103,38 +110,28 @@ public class GroundsServiceImpl implements GroundsService {
       Map<String, Object> entityMap = dtoToEntity(groundsDTO);
       Grounds grounds = (Grounds) entityMap.get("grounds");
       grounds.changeGtitle(groundsDTO.getGtitle());
+      grounds.changeReservation(groundsDTO.getReservation());
       groundsRepository.save(grounds);
-      // gphotosList :: 수정창에서 이미지 수정할 게 있는 경우의 목록
-      List<Gphotos> newGphotosList =
-          (List<Gphotos>) entityMap.get("gphotosList");
 
-      List<Gphotos> oldGphotosList =
-          gphotosRepository.findByGno(grounds.getGno());
+      // 이미지 수정 처리
+      List<Gphotos> newGphotosList = (List<Gphotos>) entityMap.get("gphotosList");
+      List<Gphotos> oldGphotosList = gphotosRepository.findByGno(grounds.getGno());
       if (newGphotosList == null) {
         // 수정창에서 이미지 모두를 지웠을 때
         gphotosRepository.deleteByGno(grounds.getGno());
-        for (int i = 0; i < oldGphotosList.size(); i++) {
-          Gphotos oldGphotos = oldGphotosList.get(i);
+        for (Gphotos oldGphotos : oldGphotosList) {
           String fileName = oldGphotos.getPath() + File.separator
               + oldGphotos.getUuid() + "_" + oldGphotos.getGphotosName();
           deleteFile(fileName);
         }
       } else { // newGroundsImageList에 일부 변화 발생
         newGphotosList.forEach(gphotos -> {
-          boolean result1 = false;
-          for (int i = 0; i < oldGphotosList.size(); i++) {
-            result1 = oldGphotosList.get(i).getUuid().equals(gphotos.getUuid());
-            if (result1) break;
-          }
-          if (!result1) gphotosRepository.save(gphotos);
+          boolean exists = oldGphotosList.stream().anyMatch(old -> old.getUuid().equals(gphotos.getUuid()));
+          if (!exists) gphotosRepository.save(gphotos);
         });
         oldGphotosList.forEach(oldGphotos -> {
-          boolean result1 = false;
-          for (int i = 0; i < newGphotosList.size(); i++) {
-            result1 = newGphotosList.get(i).getUuid().equals(oldGphotos.getUuid());
-            if (result1) break;
-          }
-          if (!result1) {
+          boolean exists = newGphotosList.stream().anyMatch(newGphotos -> newGphotos.getUuid().equals(oldGphotos.getUuid()));
+          if (!exists) {
             gphotosRepository.deleteByUuid(oldGphotos.getUuid());
             String fileName = oldGphotos.getPath() + File.separator
                 + oldGphotos.getUuid() + "_" + oldGphotos.getGphotosName();
@@ -147,12 +144,11 @@ public class GroundsServiceImpl implements GroundsService {
 
   private void deleteFile(String fileName) {
     // 실제 파일도 지우기
-    String searchFilename = null;
     try {
-      searchFilename = URLDecoder.decode(fileName, "UTF-8");
+      String searchFilename = URLDecoder.decode(fileName, "UTF-8");
       File file = new File(uploadPath + File.separator + searchFilename);
       file.delete();
-      new File(file.getParent(), "s_" + file.getName()).delete();
+      new File(file.getParent(), "s_" + file.getName()).delete(); // 썸네일 삭제
     } catch (Exception e) {
       log.error(e.getMessage());
     }
@@ -163,14 +159,9 @@ public class GroundsServiceImpl implements GroundsService {
   public List<String> removeWithReviewsAndGphotos(Long gno) {
     List<Gphotos> list = gphotosRepository.findByGno(gno);
     List<String> result = new ArrayList<>();
-    list.forEach(new Consumer<Gphotos>() {
-      @Override
-      public void accept(Gphotos t) {
-        result.add(t.getPath() + File.separator + t.getUuid() + "_" + t.getGphotosName());
-      }
-    });
+    list.forEach(gphotos -> result.add(gphotos.getPath() + File.separator + gphotos.getUuid() + "_" + gphotos.getGphotosName()));
     gphotosRepository.deleteByGno(gno);
-    groundsreviewsRepository.deleteByGno(gno);
+    groundsreviewsRepository.deleteByGno(gno); // GroundsReviews 삭제
     groundsRepository.deleteById(gno);
     return result;
   }

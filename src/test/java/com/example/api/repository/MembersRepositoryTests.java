@@ -24,7 +24,7 @@ class MembersRepositoryTests {
           .email("m" + i + "@a.a")
           .pw(passwordEncoder.encode("1"))
           .name("name" + i)
-          .birth("01010101")
+          .birth("010101")
           .phone("010-1111-1111")
           .addcash(0)
           .nowcash(0)

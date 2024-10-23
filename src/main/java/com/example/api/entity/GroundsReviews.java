@@ -5,31 +5,24 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+// GroundsReviews는 구장 리뷰 정보를 저장하는 엔티티입니다.
 @Entity
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(exclude = {"grounds", "members"})
-public class GroundsReviews {
+public class GroundsReviews extends BasicEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long grno;
+  private Long grno; // 리뷰 ID
 
   @ManyToOne(fetch = FetchType.LAZY)
-  private Grounds grounds;
+  private Grounds grounds; // 구장
 
   @ManyToOne(fetch = FetchType.LAZY)
-  private Members members;
+  private Members members; // 사용자
 
-  private String maxpeople; // 최대 신청 가능한 인원수   ex 18
-  private String nowpeople; // 현재 신청 한 인원수      ex 18
-  private String reservation; // 예약마감 상태         ex 마감
-  private String groundsTime; // 경기 시작 시간
-  private LocalDateTime regDate,modDate;
-  public void changeReservation(String reservation) {this.reservation = reservation;}
-
+  private String email; // 사용자 이메일
+  private String name; // 사용자 이름
 }
-
-
-

@@ -1,44 +1,42 @@
 package com.example.api.service;
 
 import com.example.api.dto.GroundsReviewsDTO;
-import com.example.api.dto.ReviewsDTO;
-import com.example.api.entity.*;
+import com.example.api.entity.Grounds;
+import com.example.api.entity.GroundsReviews;
+import com.example.api.entity.Members;
 
 import java.util.List;
 
 public interface GroundsReviewService {
-  List<GroundsReviewsDTO> getListOfGrounds(Long gno);
+  List<GroundsReviewsDTO> getListOfGrounds(Long gno); // 구장 리뷰 목록 조회
 
-  Long register(GroundsReviewsDTO groundsReviewsDTO);
+  Long register(GroundsReviewsDTO groundsReviewsDTO); // 구장 리뷰 등록
 
-  void modify(GroundsReviewsDTO groundsReviewsDTO);
+  void modify(GroundsReviewsDTO groundsReviewsDTO); // 구장 리뷰 수정
 
-  void remove(Long grno);
+  void remove(Long grno); // 구장 리뷰 삭제
 
-  public default GroundsReviews dtoToEntity(GroundsReviewsDTO groundsReviewsDTO) {
-    GroundsReviews groundsReviews = GroundsReviews.builder()
+  // DTO를 엔티티로 변환
+  default GroundsReviews dtoToEntity(GroundsReviewsDTO groundsReviewsDTO) {
+    return GroundsReviews.builder()
         .grno(groundsReviewsDTO.getGrno())
-        .grounds(Grounds.builder().gno(groundsReviewsDTO.getGrno()).build())
+        .grounds(Grounds.builder().gno(groundsReviewsDTO.getGno()).build())
         .members(Members.builder().mid(groundsReviewsDTO.getMid()).build())
-        .maxpeople(groundsReviewsDTO.getMaxpeople())
-        .nowpeople(groundsReviewsDTO.getNowpeople())
-        .reservation(groundsReviewsDTO.getReservation())
-        .groundsTime(groundsReviewsDTO.getGroundsTime())
+        .email(groundsReviewsDTO.getEmail())
+        .name(groundsReviewsDTO.getName())
         .build();
-    return groundsReviews;
   }
 
+  // 엔티티를 DTO로 변환
   default GroundsReviewsDTO entityToDto(GroundsReviews groundsReviews) {
-    GroundsReviewsDTO groundsReviewsDTO = GroundsReviewsDTO.builder()
-        .gno(groundsReviews.getGrno())
-        .grno(groundsReviews.getGrounds().getGno())
+    return GroundsReviewsDTO.builder()
+        .grno(groundsReviews.getGrno())
+        .gno(groundsReviews.getGrounds().getGno())
         .mid(groundsReviews.getMembers().getMid())
         .email(groundsReviews.getMembers().getEmail())
-        .maxpeople(groundsReviews.getMaxpeople())
-        .nowpeople(groundsReviews.getNowpeople())
+        .name(groundsReviews.getMembers().getName())
         .regDate(groundsReviews.getRegDate())
         .modDate(groundsReviews.getModDate())
         .build();
-    return groundsReviewsDTO;
   }
 }

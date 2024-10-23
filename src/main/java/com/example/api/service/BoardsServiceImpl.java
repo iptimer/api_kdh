@@ -94,7 +94,7 @@ public class BoardsServiceImpl implements BoardsService {
           (List<Bphotos>) entityMap.get("bphotosList");
 
       List<Bphotos> oldBphotosList =
-          bphotosRepository.findByMno(boards.getBno());
+          bphotosRepository.findByMid(boards.getBno());
       if (newBphotosList == null) {
         // 수정창에서 이미지 모두를 지웠을 때
         bphotosRepository.deleteByBno(boards.getBno());
@@ -146,7 +146,7 @@ public class BoardsServiceImpl implements BoardsService {
   @Transactional
   @Override
   public List<String> removeWithReviewsAndBphotos(Long bno) {
-    List<Bphotos> list = bphotosRepository.findByMno(bno);
+    List<Bphotos> list = bphotosRepository.findByMid(bno);
     List<String> result = new ArrayList<>();
     list.forEach(new Consumer<Bphotos>() {
       @Override
@@ -162,7 +162,7 @@ public class BoardsServiceImpl implements BoardsService {
 
   @Override
   public void removeUuid(String uuid) {
-    log.info("deleteImage...... uuid: " + uuid);
+    log.info("deleteImage... uuid: " + uuid);
     bphotosRepository.deleteByUuid(uuid);
   }
 }
