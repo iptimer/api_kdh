@@ -26,38 +26,39 @@ public class Grounds extends BasicEntity {
   private String location; // 위치
   private String sports; // 스포츠 종류
   private String info; // 구장 정보
+  private int day; // 경기 날짜
   private String groundstime; // 경기 시간
-  private String reservation; // 예약 정보
+//  private String reservation; // 예약 정보
   private int price; // 가격
   private int maxpeople; // 최대 인원
-  private int nowpeople; // 현재 인원
+//  private int nowpeople; // 현재 인원
 
   // 제목 변경 메서드
   public void changeGtitle(String gtitle) { this.gtitle = gtitle; }
 
   // 예약 정보 변경 메서드
-  public void changeReservation(String reservation) {
-    this.reservation = reservation;
-  }
+//  public void changeReservation(String reservation) {
+//    this.reservation = reservation;
+//  }
 
   // 현재 인원 수 증가 메서드
-  public void incrementNowPeople() {
-    if (nowpeople < maxpeople) {
-      nowpeople++;
-      updateReservationStatus(); // 예약 상태 업데이트
-    }
-  }
+//  public void incrementNowPeople() {
+//    if (nowpeople < maxpeople) {
+//      nowpeople++;
+//      updateReservationStatus(); // 예약 상태 업데이트
+//    }
+//  }
 
   // 예약 상태 업데이트 메서드
-  private void updateReservationStatus() {
-    if (nowpeople == maxpeople) {
-      this.reservation = "CLOSED"; // 모집 인원에 도달하면 마감
-    } else {
-      this.reservation = "OPEN"; // 모집 인원이 남아있으면 열림
-    }
-  }
+//  private void updateReservationStatus() {
+//    if (nowpeople == maxpeople) {
+//      this.reservation = "CLOSED"; // 모집 인원에 도달하면 마감
+//    } else {
+//      this.reservation = "OPEN"; // 모집 인원이 남아있으면 열림
+//    }
+//  }
 
-  public boolean canReserve() {
-    return "OPEN".equals(reservation); // 예약 가능 여부 확인
-  }
+//  public boolean canReserve() {
+//    return "OPEN".equals(reservation); // 예약 가능 여부 확인
+//  }
 }

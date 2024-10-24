@@ -23,7 +23,8 @@ public class GroundsDTO {
   private String gtitle; // 구장 이름
   private String location; // 위치
   private String sports; // 스포츠 종류
-  private String reservation = "OPEN"; // 예약 마감 여부
+//  private String reservation = "OPEN"; // 예약 마감 여부
+  private int day; // 경기 날짜
   private String groundstime; // 경기 시간
 //  private String email; // 등록자 이메일
 //  private String name; // 등록자 이름
@@ -31,7 +32,7 @@ public class GroundsDTO {
 
   private int price; // 가격
   private int maxpeople; // 최대 인원
-  private int nowpeople; // 현재 인원
+//  private int nowpeople; // 현재 인원
 
   private LocalDateTime regDate; // 등록일
   private LocalDateTime modDate; // 수정일

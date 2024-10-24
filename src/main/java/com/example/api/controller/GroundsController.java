@@ -100,13 +100,13 @@ public class GroundsController {
   }
 
   // 예약 생성 메서드 추가
-  @PostMapping("/{gno}/reservations")
-  public ResponseEntity<String> createReservation(@PathVariable Long groundId) {
-    try {
-      groundsService.makeReservation(groundId);
-      return ResponseEntity.ok("예약이 완료되었습니다.");
-    } catch (RuntimeException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
-  }
+//  @PostMapping("/{gno}/reservations")
+//  public ResponseEntity<String> createReservation(@PathVariable Long groundId) {
+//    try {
+//      groundsService.makeReservation(groundId);
+//      return ResponseEntity.ok("예약이 완료되었습니다.");
+//    } catch (RuntimeException e) {
+//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+//    }
+//  }
 }

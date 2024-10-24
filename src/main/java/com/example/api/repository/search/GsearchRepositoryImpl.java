@@ -83,6 +83,14 @@ public class GsearchRepositoryImpl extends QuerydslRepositorySupport
             conditionBuilder.or(grounds.location.contains(keyword)); break;
           case "c":
             conditionBuilder.or(grounds.sports.contains(keyword)); break;
+          case "d":  // day 검색 (정확한 숫자 검색)
+            try {
+              int dayKeyword = Integer.parseInt(keyword);  // keyword를 int로 변환
+              conditionBuilder.or(grounds.day.eq((dayKeyword)));  // day가 keyword와 정확히 같은지 확인
+            } catch (NumberFormatException e) {
+              log.warn("Invalid day keyword: {}", keyword);
+            }
+            break;
         }
       }
       booleanBuilder.and(conditionBuilder);

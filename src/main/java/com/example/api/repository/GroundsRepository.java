@@ -22,7 +22,7 @@ public interface GroundsRepository extends JpaRepository<Grounds, Long>, Gsearch
   Page<Object[]> getListPageMaxImg(Pageable pageable);
 
   @Query(value = "select g.gno, p.gpnum, p.gphotos_name, " +
-      "r.members, count(r), g.maxpeople, g.reservation, g.groundstime " +
+      "r.members, count(r), g.maxpeople, g.groundstime " +
       "from db7.gphotos p left outer join db7.grounds g on g.gno=p.grounds_gno " +
       "left outer join db7.GroundsReviews r on g.gno=r.grounds_gno " +
       "where p.gpnum = " +

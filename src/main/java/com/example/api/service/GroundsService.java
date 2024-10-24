@@ -34,7 +34,7 @@ public interface GroundsService {
   void removeUuid(String uuid);
 
   // 구장 예약
-  void makeReservation(Long groundId);
+//  void makeReservation(Long groundId);
 
   // GroundsDTO를 Grounds 엔티티로 변환하는 메서드
   default Map<String, Object> dtoToEntity(GroundsDTO groundsDTO) {
@@ -47,10 +47,11 @@ public interface GroundsService {
         .location(groundsDTO.getLocation())
         .sports(groundsDTO.getSports())
         .price(groundsDTO.getPrice())
+        .day(groundsDTO.getDay())
         .groundstime(groundsDTO.getGroundstime())
         .maxpeople(groundsDTO.getMaxpeople())
-        .nowpeople(groundsDTO.getNowpeople())
-        .reservation(groundsDTO.getReservation())
+//        .nowpeople(groundsDTO.getNowpeople())
+//        .reservation(groundsDTO.getReservation())
         .info(groundsDTO.getInfo())
         .build();
 
@@ -73,7 +74,7 @@ public interface GroundsService {
   }
 
   // Grounds 엔티티를 GroundsDTO로 변환하는 메서드
-  default GroundsDTO entityToDto(Grounds grounds, List<Gphotos> gphotosList, Long nowpeople, Long reviewsCnt) {
+  default GroundsDTO entityToDto(Grounds grounds, List<Gphotos> gphotosList, Long reviewsCnt) {
     // GroundsDTO 객체 생성
     GroundsDTO groundsDTO = GroundsDTO.builder()
         .gno(grounds.getGno())
@@ -81,10 +82,11 @@ public interface GroundsService {
         .location(grounds.getLocation())
         .sports(grounds.getSports())
         .price(grounds.getPrice())
+        .day(grounds.getDay())
         .groundstime(grounds.getGroundstime())
         .maxpeople(grounds.getMaxpeople())
-        .nowpeople(grounds.getNowpeople())
-        .reservation(grounds.getReservation())
+//        .nowpeople(grounds.getNowpeople())
+//        .reservation(grounds.getReservation())
         .info(grounds.getInfo())
         .reviewsCnt(reviewsCnt)
         .regDate(grounds.getRegDate())
