@@ -6,7 +6,6 @@ import com.example.api.dto.PageRequestDTO;
 import com.example.api.dto.PageResultDTO;
 import com.example.api.entity.Boards;
 import com.example.api.entity.Bphotos;
-import com.example.api.entity.Members;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,11 +30,7 @@ public interface BoardsService {
   default Map<String, Object> dtoToEntity(BoardsDTO boardsDTO) {
     Map<String, Object> entityMap = new HashMap<>();
     Boards boards = Boards.builder().bno(boardsDTO.getBno())
-        .title(boardsDTO.getTitle())
-        .content(boardsDTO.getContent())
-        .writer(Members.builder().email(boardsDTO.getEmail()).build())
-        .writer(Members.builder().name(boardsDTO.getName()).build())
-        .build();
+        .title(boardsDTO.getTitle()).build();
     entityMap.put("boards", boards);
     List<BphotosDTO> bphotosDTOList = boardsDTO.getBphotosDTOList();
     if (bphotosDTOList != null && bphotosDTOList.size() > 0) {

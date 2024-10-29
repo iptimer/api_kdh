@@ -6,6 +6,7 @@ import com.example.api.dto.PageRequestDTO;
 import com.example.api.dto.PageResultDTO;
 import com.example.api.entity.Gphotos;
 import com.example.api.entity.Grounds;
+import com.example.api.entity.Members;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,11 +35,14 @@ public interface GroundsService {
   void removeUuid(String uuid);
 
   // 구장 예약
-//  void makeReservation(Long groundId);
+  void makeReservation(Long groundId);
+
+
 
   // GroundsDTO를 Grounds 엔티티로 변환하는 메서드
   default Map<String, Object> dtoToEntity(GroundsDTO groundsDTO) {
     Map<String, Object> entityMap = new HashMap<>();
+
 
     // Grounds 객체 생성
     Grounds grounds = Grounds.builder()
@@ -50,8 +54,8 @@ public interface GroundsService {
         .day(groundsDTO.getDay())
         .groundstime(groundsDTO.getGroundstime())
         .maxpeople(groundsDTO.getMaxpeople())
-//        .nowpeople(groundsDTO.getNowpeople())
-//        .reservation(groundsDTO.getReservation())
+        .nowpeople(groundsDTO.getNowpeople())
+        .reservation(groundsDTO.getReservation())
         .info(groundsDTO.getInfo())
         .build();
 
@@ -74,7 +78,7 @@ public interface GroundsService {
   }
 
   // Grounds 엔티티를 GroundsDTO로 변환하는 메서드
-  default GroundsDTO entityToDto(Grounds grounds, List<Gphotos> gphotosList, Long reviewsCnt) {
+  default GroundsDTO entityToDto(Grounds grounds, List<Gphotos> gphotosList, Long nowpeople, Long reviewsCnt) {
     // GroundsDTO 객체 생성
     GroundsDTO groundsDTO = GroundsDTO.builder()
         .gno(grounds.getGno())
@@ -85,8 +89,8 @@ public interface GroundsService {
         .day(grounds.getDay())
         .groundstime(grounds.getGroundstime())
         .maxpeople(grounds.getMaxpeople())
-//        .nowpeople(grounds.getNowpeople())
-//        .reservation(grounds.getReservation())
+        .nowpeople(grounds.getNowpeople())
+        .reservation(grounds.getReservation())
         .info(grounds.getInfo())
         .reviewsCnt(reviewsCnt)
         .regDate(grounds.getRegDate())

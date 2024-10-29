@@ -87,14 +87,13 @@ public class BoardsServiceImpl implements BoardsService {
       Map<String, Object> entityMap = dtoToEntity(boardsDTO);
       Boards boards = (Boards) entityMap.get("boards");
       boards.changeTitle(boardsDTO.getTitle());
-      boards.changeContent(boardsDTO.getContent());
       boardsRepository.save(boards);
       // bphotosList :: 수정창에서 이미지 수정할 게 있는 경우의 목록
       List<Bphotos> newBphotosList =
           (List<Bphotos>) entityMap.get("bphotosList");
 
       List<Bphotos> oldBphotosList =
-          bphotosRepository.findByMid(boards.getBno());
+          bphotosRepository.findByMno(boards.getBno());
       if (newBphotosList == null) {
         // 수정창에서 이미지 모두를 지웠을 때
         bphotosRepository.deleteByBno(boards.getBno());
@@ -146,7 +145,7 @@ public class BoardsServiceImpl implements BoardsService {
   @Transactional
   @Override
   public List<String> removeWithReviewsAndBphotos(Long bno) {
-    List<Bphotos> list = bphotosRepository.findByMid(bno);
+    List<Bphotos> list = bphotosRepository.findByMno(bno);
     List<String> result = new ArrayList<>();
     list.forEach(new Consumer<Bphotos>() {
       @Override
@@ -162,7 +161,7 @@ public class BoardsServiceImpl implements BoardsService {
 
   @Override
   public void removeUuid(String uuid) {
-    log.info("deleteImage... uuid: " + uuid);
+    log.info("deleteImage...... uuid: " + uuid);
     bphotosRepository.deleteByUuid(uuid);
   }
 }

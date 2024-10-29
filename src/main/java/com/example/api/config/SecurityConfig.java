@@ -6,6 +6,7 @@ import com.example.api.security.handler.ApiLoginFailHandler;
 import com.example.api.security.util.JWTUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -50,15 +51,8 @@ public class SecurityConfig {
   }
 
   // String 배열에 정의된 주소는 token으로 인증해야만 접근할 수 있는 주소.
-  String[] checkAddress = {
-      "/grounds/**",
-      "/members/**",
-      "/record/**",
-      "/boards/**",
-      "/reviews/**",
-      "/uploadAjax/**",
-      "/removeFile/**"
-  };
+  String[] checkAddress = {"/grounds/**", "/record/**","/boards/**", "/reviews/**" ,"/greviews/**"};
+  // /members/**/* 제외 또는 특정 경로로 변경
 
   @Bean
   public ApiCheckFilter apiCheckFilter() {
@@ -79,9 +73,12 @@ public class SecurityConfig {
             .requestMatchers(new AntPathRequestMatcher("/grounds/**")).permitAll()
             .requestMatchers(new AntPathRequestMatcher("/members/join")).permitAll()
             .requestMatchers(new AntPathRequestMatcher("/members/**")).permitAll()
+            .requestMatchers(new AntPathRequestMatcher("/uploadAjax/**")).permitAll()
+            .requestMatchers(new AntPathRequestMatcher("/removeFile/**")).permitAll()
             .requestMatchers(new AntPathRequestMatcher("/reviews/**")).permitAll()
             .requestMatchers(new AntPathRequestMatcher("/record/**")).permitAll()
             .requestMatchers(new AntPathRequestMatcher("/greviews/**")).permitAll()
+            .requestMatchers(new AntPathRequestMatcher("/display/**")).permitAll()
             .anyRequest().denyAll());
 
     // addFilterBefore는 일반적 필터링 순서보다 앞쪽에서 필터링하도록 순서 조정.

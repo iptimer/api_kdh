@@ -16,9 +16,6 @@ import java.util.List;
 public class BoardsDTO {
   private Long bno;
   private String title;
-  private String content;
-  private String email;
-  private String name;
   @Builder.Default // @AllArgsConstructor가 없으면 에러,기본값초기화
   private List<BphotosDTO> bphotosDTOList = new ArrayList<>();
   private double likes;

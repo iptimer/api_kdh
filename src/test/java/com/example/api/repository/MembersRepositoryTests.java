@@ -25,15 +25,16 @@ class MembersRepositoryTests {
           .pw(passwordEncoder.encode("1"))
           .name("name" + i)
           .birth("010101")
-          .phone("010-1111-1111")
+          .phone("010-1111-2222")
+          .level("level:"+i)
           .addcash(0)
           .nowcash(0)
-          .level("1")
-          .prefer("1")
+          .level("")
+          .prefer("")
           .build();
       members.addMemberRole(MembersRole.USER);
-      if (i > 80) members.addMemberRole(MembersRole.MANAGER);
-      if (i > 90) members.addMemberRole(MembersRole.ADMIN);
+      if(i>80) members.addMemberRole(MembersRole.MANAGER);
+      if(i>90) members.addMemberRole(MembersRole.ADMIN);
       membersRepository.save(members);
     });
   }

@@ -60,4 +60,5 @@ public interface MembersService {
   void removeMembers(Long mid);
   MembersDTO getMembers(Long mid);
   MembersDTO loginCheck(String email);
+  MembersDTO getMemberByEmail(String email);
 }

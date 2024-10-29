@@ -43,4 +43,10 @@ public class MembersController {
     membersService.updateMembers(membersDTO);
     return new ResponseEntity<>("modified", HttpStatus.OK);
   }
+
+  @GetMapping(value = "/email/{email}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<MembersDTO> getMemberByEmail(@PathVariable("email") String email) {
+    log.info("getMemberByEmail... email: " + email);
+    return new ResponseEntity<>(membersService.getMemberByEmail(email), HttpStatus.OK);
+  }
 }

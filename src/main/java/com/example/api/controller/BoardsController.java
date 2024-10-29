@@ -80,7 +80,7 @@ public class BoardsController {
     List<String> bphotoList = boardsService.removeWithReviewsAndBphotos(bno);
     bphotoList.forEach(fileName -> {
       try {
-        log.info("removeFile..." + fileName);
+        log.info("removeFile............" + fileName);
         String srcFileName = URLDecoder.decode(fileName, "UTF-8");
         File file = new File(uploadPath + File.separator + srcFileName);
         file.delete();

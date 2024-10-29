@@ -18,9 +18,11 @@ public class GroundsReviews extends BasicEntity {
   private Long grno; // 리뷰 ID
 
   @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "gno")
   private Grounds grounds; // 구장
 
   @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "mid")
   private Members members; // 사용자
 
   private String email; // 사용자 이메일

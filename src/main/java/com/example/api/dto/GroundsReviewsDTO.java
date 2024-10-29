@@ -16,8 +16,10 @@ public class GroundsReviewsDTO {
   private Long gno; // 구장 ID
   private Long grno; // 리뷰 ID
   private Long mid; // 사용자 ID
+
   private String email; // 사용자 이메일
   private String name; // 사용자 이름
+
   private LocalDateTime regDate; // 등록일
   private LocalDateTime modDate; // 수정일
 }

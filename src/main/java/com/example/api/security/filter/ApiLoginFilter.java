@@ -29,7 +29,7 @@ public class ApiLoginFilter extends AbstractAuthenticationProcessingFilter {
       throws AuthenticationException, IOException, ServletException {
     String email = request.getParameter("email");
     String pass = request.getParameter("pw");
-    log.info("attemptAuthentication..."+email+"/"+pass);
+    log.info("attemptAuthentication...."+email+"/"+pass);
     UsernamePasswordAuthenticationToken authToken =
         new UsernamePasswordAuthenticationToken(email, pass);
     return getAuthenticationManager().authenticate(authToken);

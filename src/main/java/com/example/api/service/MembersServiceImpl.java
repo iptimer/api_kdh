@@ -53,4 +53,12 @@ public class MembersServiceImpl implements MembersService {
     return membersRepository.save(dtoToEnitity(membersDTO)).getMid();
   }
 
+  @Override
+  public MembersDTO getMemberByEmail(String email) {
+    Optional<Members> result = membersRepository.findByEmail(email);
+    if (result.isPresent()) {
+      return entityToDTO(result.get());
+    }
+    return null;
+  }
 }

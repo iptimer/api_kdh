@@ -30,7 +30,7 @@ public class SearchRepositoryImpl extends QuerydslRepositorySupport
 
 //  @Override
 //  public Feeds search1() {
-//    log.info("search1...");
+//    log.info("search1.................");
 //    QFeeds feeds = QFeeds.feeds;
 //    QPhotos photos = QPhotos.photos;
 //    QReviews reviews = QReviews.reviews;
@@ -54,7 +54,7 @@ public class SearchRepositoryImpl extends QuerydslRepositorySupport
 
   @Override
   public Page<Object[]> searchPage(String type, String keyword, Pageable pageable) {
-    log.info("searchPage...");
+    log.info("searchPage...............");
     //1) q도메인을 확보
     QBoards boards = QBoards.boards;
     QBphotos bphotos = QBphotos.bphotos;

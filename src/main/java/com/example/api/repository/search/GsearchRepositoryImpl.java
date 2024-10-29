@@ -27,7 +27,7 @@ public class GsearchRepositoryImpl extends QuerydslRepositorySupport
 
 //  @Override
 //  public Feeds search1() {
-//    log.info("search1...");
+//    log.info("search1.................");
 //    QFeeds feeds = QFeeds.feeds;
 //    QPhotos photos = QPhotos.photos;
 //    QReviews reviews = QReviews.reviews;
@@ -50,82 +50,85 @@ public class GsearchRepositoryImpl extends QuerydslRepositorySupport
 //  }
 
   @Override
-  public Page<Object[]> searchPage(String type, String keyword, Pageable pageable) {
-    log.info("searchPage...");
-    //1) q도메인을 확보
+  public Page<Object[]> searchPage(String type, String keyword,String day, Pageable pageable) {
+    log.info("searchPage...............");
+
+    //1) Q 도메인 확보
     QGrounds grounds = QGrounds.grounds;
     QGphotos gphotos = QGphotos.gphotos;
     QGroundsReviews groundsReviews = QGroundsReviews.groundsReviews;
 
-
-    //2) q도메인을 조인
+    //2) Q 도메인 조인
     JPQLQuery<Grounds> jpqlQuery = from(grounds);
     jpqlQuery.leftJoin(gphotos).on(gphotos.grounds.eq(grounds));
     jpqlQuery.leftJoin(groundsReviews).on(groundsReviews.grounds.eq(grounds));
 
-    //3) Tuple생성 : 조인을 한 결과의 데이터를 tuple로 생성
-    JPQLQuery<Tuple> tuple = jpqlQuery.select(grounds, gphotos, groundsReviews, grounds.location,grounds.sports);
+    //3) Tuple 생성 : 조인된 결과를 tuple로 생성
+    JPQLQuery<Tuple> tuple = jpqlQuery.select(grounds, gphotos, groundsReviews, grounds.location, grounds.sports);
 
     //4) 조건절 생성
     BooleanBuilder booleanBuilder = new BooleanBuilder();
-    BooleanExpression expression = grounds.gno.gt(0L);
+    BooleanExpression expression = grounds.gno.gt(0L);  // gno가 0보다 큰 경우
     booleanBuilder.and(expression);
 
-    //5) 검색조건 파악
+    //5) day 검색 필터링
+    if (day != null && !day.isEmpty()) {
+      try {
+        int dayKeyword = Integer.parseInt(day);  // day 값을 int로 변환
+        booleanBuilder.and(grounds.day.eq(dayKeyword));  // 정확한 날짜 필터링
+      } catch (NumberFormatException e) {
+        log.warn("Invalid day: {}", day);
+      }
+    }
+
+    //6) 검색 조건 파악 - 제목, 내용 등 추가 검색 조건 처리
     if (type != null) {
       String[] typeArr = type.split("");
       BooleanBuilder conditionBuilder = new BooleanBuilder();
       for (String t : typeArr) {
         switch (t) {
-          case "t":
-            conditionBuilder.or(grounds.gtitle.contains(keyword)); break;
-          case "w":
-            conditionBuilder.or(grounds.location.contains(keyword)); break;
-          case "c":
-            conditionBuilder.or(grounds.sports.contains(keyword)); break;
-          case "d":  // day 검색 (정확한 숫자 검색)
-            try {
-              int dayKeyword = Integer.parseInt(keyword);  // keyword를 int로 변환
-              conditionBuilder.or(grounds.day.eq((dayKeyword)));  // day가 keyword와 정확히 같은지 확인
-            } catch (NumberFormatException e) {
-              log.warn("Invalid day keyword: {}", keyword);
-            }
+          case "t":  // 제목 검색
+            conditionBuilder.or(grounds.gtitle.contains(keyword));
+            break;
+          case "w":  // 위치 검색
+            conditionBuilder.or(grounds.location.contains(keyword));
+            break;
+          case "c":  // 스포츠 종류 검색
+            conditionBuilder.or(grounds.sports.contains(keyword));
             break;
         }
       }
-      booleanBuilder.and(conditionBuilder);
+      booleanBuilder.and(conditionBuilder);  // 날짜 필터링 후 추가 조건 적용
     }
 
-    //6) 조인된 tuple에서 조건절에 위에서 생성한 booleanBuilder로 검색한다.
+    //7) 조건을 tuple에 적용
     tuple.where(booleanBuilder);
 
-    //7) 정렬조건 생성
+    //8) 정렬 조건 적용
     Sort sort = pageable.getSort();
     sort.stream().forEach(order -> {
       Order direction = order.isAscending() ? Order.ASC : Order.DESC;
       String prop = order.getProperty();
-      PathBuilder orderByExpression = new PathBuilder(Grounds.class, "grounds");
-      tuple.orderBy(new OrderSpecifier<Comparable>(direction, orderByExpression.get(prop)));
+      PathBuilder orderByExpression = new PathBuilder<>(Grounds.class, "grounds");
+      tuple.orderBy(new OrderSpecifier<>(direction, orderByExpression.get(prop)));
     });
 
-    //8) 데이터를 출력하기 위한 그룹을 생성
+    //9) 그룹핑
     tuple.groupBy(grounds);
 
-    //9) 원하는 데이터를 들고오기 위해서 시작위치즉 offset을 지정
+    //10) 페이징 처리
     tuple.offset(pageable.getOffset());
-
-    //10) offset부터 들고올 갯수 지정
     tuple.limit(pageable.getPageSize());
 
-    //11) 최종 결과를 tuple의 fetch()함수를 통해서 컬렉션에 저장
+    //11) 결과 가져오기
     List<Tuple> result = tuple.fetch();
     log.info(result);
 
-    //12) 최종결과의 갯수 출력
+    //12) 총 갯수 가져오기
     long count = tuple.fetchCount();
     log.info("COUNT: " + count);
 
-    //13) 출력하고자 하는 Page객체를 위한 PageImpl객체로 생성
-    return new PageImpl<Object[]>(result.stream().map(t -> t.toArray()).collect(Collectors.toList()), pageable, count);
+    //13) 페이지 객체 반환
+    return new PageImpl<>(result.stream().map(t -> t.toArray()).collect(Collectors.toList()), pageable, count);
   }
 }
