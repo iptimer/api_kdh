@@ -61,4 +61,28 @@ public class MembersServiceImpl implements MembersService {
     }
     return null;
   }
+
+//  @Override
+//  public void updateCash(MembersDTO membersDTO) {
+//    Optional<Members> result = membersRepository.findById(membersDTO.getMid());
+//    if (result.isPresent()) {
+//      Members members = result.get();
+//      members.setNowcash(membersDTO.getNowcash());
+//      membersRepository.save(members);
+//    } else {
+//      throw new RuntimeException("Member not found");
+//    }
+//  }
+
+  @Override
+  public Long chargeCash(String email, int addcash) {
+    Optional<Members> result = membersRepository.findByEmail(email);
+    if (result.isPresent()) {
+      Members members = result.get();
+      members.setNowcash(members.getNowcash() + addcash);
+      membersRepository.save(members);
+      return members.getMid();
+    }
+    throw new RuntimeException("Member not found");
+  }
 }

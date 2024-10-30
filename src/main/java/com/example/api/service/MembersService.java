@@ -61,4 +61,6 @@ public interface MembersService {
   MembersDTO getMembers(Long mid);
   MembersDTO loginCheck(String email);
   MembersDTO getMemberByEmail(String email);
+//  void updateCash(MembersDTO membersDTO);
+  Long chargeCash(String email, int addcash);
 }

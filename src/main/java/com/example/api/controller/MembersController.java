@@ -9,6 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @Log4j2
 @RequestMapping("/members")
@@ -48,5 +50,21 @@ public class MembersController {
   public ResponseEntity<MembersDTO> getMemberByEmail(@PathVariable("email") String email) {
     log.info("getMemberByEmail... email: " + email);
     return new ResponseEntity<>(membersService.getMemberByEmail(email), HttpStatus.OK);
+  }
+
+//  @PutMapping(value = "/updateCash", produces = MediaType.APPLICATION_JSON_VALUE)
+//  public ResponseEntity<String> updateCash(@RequestBody MembersDTO membersDTO) {
+//    log.info("updateCash... membersDTO: " + membersDTO);
+//    membersService.updateCash(membersDTO);
+//    return new ResponseEntity<>("cash updated", HttpStatus.OK);
+//  }
+
+  @PostMapping(value = "/charge", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<Map<String, String>> chargeCash(@RequestBody Map<String, Object> chargeData) {
+    String email = (String) chargeData.get("email");
+    int addcash = (int) chargeData.get("addcash");
+    membersService.chargeCash(email, addcash);
+    Map<String, String> response = Map.of("message", "cash charged");
+    return new ResponseEntity<>(response, HttpStatus.OK);
   }
 }
