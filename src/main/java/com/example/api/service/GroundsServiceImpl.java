@@ -37,6 +37,7 @@ public class GroundsServiceImpl implements GroundsService {
 
   @Override
   public Long register(GroundsDTO groundsDTO) {
+
     Map<String, Object> entityMap = dtoToEntity(groundsDTO);
     Grounds grounds = (Grounds) entityMap.get("grounds");
     List<Gphotos> gphotosList =
@@ -70,11 +71,15 @@ public class GroundsServiceImpl implements GroundsService {
         Gphotos gphoto = (Gphotos) objects[1];
         gphotosList.add(gphoto);
       }
+      Long nowpeople = null;
       Long greviewsCnt = null;
       if (objects[2] instanceof Number) {
-        greviewsCnt = ((Number) objects[2]).longValue();
+        nowpeople = ((Number) objects[2]).longValue();
       }
-      return entityToDto(grounds, gphotosList, greviewsCnt);
+      if (objects[3] instanceof Number) {
+        greviewsCnt = ((Number) objects[3]).longValue();
+      }
+      return entityToDto(grounds, gphotosList, nowpeople, greviewsCnt);
     };
 
     return new PageResultDTO<>(result, fn);
@@ -87,9 +92,10 @@ public class GroundsServiceImpl implements GroundsService {
     Grounds grounds = (Grounds) result.get(0)[0];
     List<Gphotos> gphotos = new ArrayList<>();
     result.forEach(objects -> gphotos.add((Gphotos) objects[1]));
-    Long greviewsCnt = (Long) result.get(0)[2];
+    Long nowpeople = (Long) result.get(0)[2];
+    Long greviewsCnt = (Long) result.get(0)[3];
 
-    return entityToDto(grounds, gphotos, greviewsCnt);
+    return entityToDto(grounds, gphotos, nowpeople, greviewsCnt);
   }
 
   @Value("${com.example.upload.path}")

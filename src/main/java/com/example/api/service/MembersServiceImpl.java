@@ -79,10 +79,17 @@ public class MembersServiceImpl implements MembersService {
     Optional<Members> result = membersRepository.findByEmail(email);
     if (result.isPresent()) {
       Members members = result.get();
-      members.setNowcash(members.getNowcash() + addcash);
+      int newCash = members.getNowcash() + addcash;
+
+      if (newCash < 0) {
+        throw new RuntimeException("캐쉬가 부족합니다.");
+      }
+
+      members.setNowcash(newCash);
       membersRepository.save(members);
       return members.getMid();
     }
     throw new RuntimeException("Member not found");
   }
+
 }

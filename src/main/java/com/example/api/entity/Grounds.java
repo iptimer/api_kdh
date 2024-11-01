@@ -29,8 +29,8 @@ public class Grounds extends BasicEntity {
   private String groundstime; // 경기 시간
   private int price; // 가격
   private int maxpeople; // 최대 인원
+  private int nowpeople; // 현재 인원
   private int day;
-//  private int greviewsCnt; // GroundsReviews 개수
 
   // 제목 변경 메서드
   public void changeGtitle(String gtitle) { this.gtitle = gtitle; }

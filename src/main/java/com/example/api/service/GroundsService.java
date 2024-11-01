@@ -49,6 +49,7 @@ public interface GroundsService {
         .day(groundsDTO.getDay())
         .groundstime(groundsDTO.getGroundstime())
         .maxpeople(groundsDTO.getMaxpeople())
+        .nowpeople(groundsDTO.getNowpeople())
         .info(groundsDTO.getInfo())
         .build();
 
@@ -71,7 +72,7 @@ public interface GroundsService {
   }
 
   // Grounds 엔티티를 GroundsDTO로 변환하는 메서드
-  default GroundsDTO entityToDto(Grounds grounds, List<Gphotos> gphotosList, Long greviewsCnt) {
+  default GroundsDTO entityToDto(Grounds grounds, List<Gphotos> gphotosList, Long nowpeople, Long greviewsCnt) {
     // GroundsDTO 객체 생성
     GroundsDTO groundsDTO = GroundsDTO.builder()
         .gno(grounds.getGno())
@@ -82,6 +83,7 @@ public interface GroundsService {
         .day(grounds.getDay())
         .groundstime(grounds.getGroundstime())
         .maxpeople(grounds.getMaxpeople())
+        .nowpeople(grounds.getNowpeople())
         .info(grounds.getInfo())
         .greviewsCnt(greviewsCnt)
         .regDate(grounds.getRegDate())
