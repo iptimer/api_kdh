@@ -35,24 +35,8 @@ public class GroundsServiceImpl implements GroundsService {
   private final GroundsReviewsRepository groundsreviewsRepository;
   private final MembersRepository membersRepository;
 
-
-  @Override
-  public void makeReservation(Long groundId) {
-    Grounds grounds = groundsRepository.findById(groundId)
-        .orElseThrow(() -> new RuntimeException("Ground not found"));
-
-    // 예약 가능 여부 확인
-    if (grounds.canReserve()) {
-      grounds.incrementNowPeople(); // 현재 인원 수 증가
-      groundsRepository.save(grounds); // DB에 저장
-    } else {
-      throw new RuntimeException("예약이 마감되었습니다."); // 예외 처리
-    }
-  }
-
   @Override
   public Long register(GroundsDTO groundsDTO) {
-
     Map<String, Object> entityMap = dtoToEntity(groundsDTO);
     Grounds grounds = (Grounds) entityMap.get("grounds");
     List<Gphotos> gphotosList =
@@ -86,15 +70,11 @@ public class GroundsServiceImpl implements GroundsService {
         Gphotos gphoto = (Gphotos) objects[1];
         gphotosList.add(gphoto);
       }
-      Long nowpeople = null;
-      Long reviewsCnt = null;
+      Long greviewsCnt = null;
       if (objects[2] instanceof Number) {
-        nowpeople = ((Number) objects[2]).longValue();
+        greviewsCnt = ((Number) objects[2]).longValue();
       }
-      if (objects[3] instanceof Number) {
-        reviewsCnt = ((Number) objects[3]).longValue();
-      }
-      return entityToDto(grounds, gphotosList, nowpeople, reviewsCnt);
+      return entityToDto(grounds, gphotosList, greviewsCnt);
     };
 
     return new PageResultDTO<>(result, fn);
@@ -107,10 +87,9 @@ public class GroundsServiceImpl implements GroundsService {
     Grounds grounds = (Grounds) result.get(0)[0];
     List<Gphotos> gphotos = new ArrayList<>();
     result.forEach(objects -> gphotos.add((Gphotos) objects[1]));
-    Long nowpeople = (Long) result.get(0)[2];
-    Long groundsreviewsCnt = (Long) result.get(0)[3];
+    Long greviewsCnt = (Long) result.get(0)[2];
 
-    return entityToDto(grounds, gphotos, nowpeople, groundsreviewsCnt);
+    return entityToDto(grounds, gphotos, greviewsCnt);
   }
 
   @Value("${com.example.upload.path}")
@@ -124,7 +103,6 @@ public class GroundsServiceImpl implements GroundsService {
       Map<String, Object> entityMap = dtoToEntity(groundsDTO);
       Grounds grounds = (Grounds) entityMap.get("grounds");
       grounds.changeGtitle(groundsDTO.getGtitle());
-      grounds.changeReservation(groundsDTO.getReservation());
       groundsRepository.save(grounds);
       // gphotosList :: 수정창에서 이미지 수정할 게 있는 경우의 목록
       List<Gphotos> newGphotosList =
