@@ -47,19 +47,22 @@ public class UploadController {
       log.info("fileName: " + fileName);
 
       String folderPath = makeFolder(); // yyyy/MM/dd
-      String uuid = UUID.randomUUID().toString(); //unique
-      String saveName = uploadPath + File.separator + folderPath + File.separator
-          + uuid + "_" + fileName;
+      String uuid = UUID.randomUUID().toString(); // unique identifier
+      String saveName = uploadPath + File.separator + folderPath + File.separator + uuid + "_" + fileName;
       Path savePath = Paths.get(saveName);
+
       try {
-        multipartFile.transferTo(savePath); //원본 파일 저장
-        String thumbnailSaveName = uploadPath + File.separator + folderPath
-            + File.separator + "s_" + uuid + "_" + fileName;
+        // 원본 파일 저장
+        multipartFile.transferTo(savePath);
+
+        // 섬네일 생성
+        String thumbnailSaveName = uploadPath + File.separator + folderPath + File.separator + "s_" + uuid + "_" + fileName;
         File thumbnailFile = new File(thumbnailSaveName);
         Thumbnailator.createThumbnail(savePath.toFile(), thumbnailFile, 100, 100);
+
         resultDTOList.add(new UploadResultDTO(fileName, uuid, folderPath));
       } catch (IOException e) {
-        log.error(e.getMessage());
+        log.error("File upload error: " + e.getMessage());
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
@@ -72,19 +75,20 @@ public class UploadController {
     try {
       String searchFilename = URLDecoder.decode(fileName, "UTF-8");
       File file = new File(uploadPath + File.separator + searchFilename);
+
       if (size != null && size.equals("1")) {
-        log.info(">>", file.getName());
-        // 미리보기 할 때 링크에 size=1로 설정하여 섬네일명에서 s_ 를 제거하고 가져옴
+        log.info("Thumbnail view requested for: " + file.getName());
+        // 미리보기 섬네일 이름에서 "s_"를 제거하여 원본 이미지 참조
         file = new File(file.getParent(), file.getName().substring(2));
       }
-      log.info("file: " + file);
+
+      log.info("Serving file: " + file);
       HttpHeaders headers = new HttpHeaders();
-      // 파일의 확장자에 따라서 브라우저에 전송하는 MIME타입을 결정
       headers.add("Content-Type", Files.probeContentType(file.toPath()));
-      result = new ResponseEntity<>(
-          FileCopyUtils.copyToByteArray(file), headers, HttpStatus.OK);
+
+      result = new ResponseEntity<>(FileCopyUtils.copyToByteArray(file), headers, HttpStatus.OK);
     } catch (Exception e) {
-      log.error(e.getMessage());
+      log.error("Error retrieving image file: " + e.getMessage());
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
     return result;
@@ -93,23 +97,37 @@ public class UploadController {
   @Transactional
   @PostMapping("/removeFile")
   public ResponseEntity<Boolean> removeFile(String fileName, String uuid) {
-    log.info("remove fileName: " + fileName);
-    String searchFilename = null;
+    log.info("Requested file removal: " + fileName);
+
+    if (fileName == null || fileName.isEmpty()) {
+      log.error("Invalid file name: null or empty");
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+    }
+
     if (uuid != null) {
       bphotosRepository.deleteByUuid(uuid);
+      log.info("Database record with UUID " + uuid + " deleted.");
     }
+
     try {
-      searchFilename = URLDecoder.decode(fileName, "UTF-8");
+      String searchFilename = URLDecoder.decode(fileName, "UTF-8");
       File file = new File(uploadPath + File.separator + searchFilename);
+
+      if (!file.exists()) {
+        log.warn("File not found: " + searchFilename);
+        return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+      }
+
       boolean result1 = file.delete();
       File thumbnail = new File(file.getParent(), "s_" + file.getName());
-      boolean result2 = thumbnail.delete();
-      boolean tmp = result1 && result2;
-      log.info(">>", tmp + "=" + result1 + "&&" + result2);
-      return new ResponseEntity<>(tmp,
-          tmp ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR);
+      boolean result2 = thumbnail.exists() ? thumbnail.delete() : true;
+
+      boolean deletionResult = result1 && result2;
+      log.info("File deletion result: " + deletionResult + " (File: " + result1 + ", Thumbnail: " + result2 + ")");
+
+      return new ResponseEntity<>(deletionResult, deletionResult ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR);
     } catch (Exception e) {
-      log.error(e.getMessage());
+      log.error("Error while deleting file: " + e.getMessage());
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

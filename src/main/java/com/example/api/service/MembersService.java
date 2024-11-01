@@ -14,6 +14,7 @@ public interface MembersService {
         .email(membersDTO.getEmail())
         .pw(membersDTO.getPw())
         .name(membersDTO.getName())
+        .likes(membersDTO.getLikes())
         .nowcash(membersDTO.getNowcash())
         .addcash(membersDTO.getAddcash())
         .level(membersDTO.getLevel())
@@ -38,6 +39,7 @@ public interface MembersService {
         .email(members.getEmail())
         .pw(members.getPw())
         .name(members.getName())
+        .likes(members.getLikes())
         .nowcash(members.getNowcash())
         .addcash(members.getAddcash())
         .level(members.getLevel())
@@ -61,6 +63,8 @@ public interface MembersService {
   MembersDTO getMembers(Long mid);
   MembersDTO loginCheck(String email);
   MembersDTO getMemberByEmail(String email);
-//  void updateCash(MembersDTO membersDTO);
+  //  void updateCash(MembersDTO membersDTO);
   Long chargeCash(String email, int addcash);
+  void addLikes(String email, Long gno);
+  void removeLike(String email, Long gno);
 }

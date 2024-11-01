@@ -34,6 +34,16 @@ public interface GroundsService {
   // UUID로 사진 삭제
   void removeUuid(String uuid);
 
+  // 구장 예약
+  void makeReservation(Long groundId);
+
+  // 구장이름,경기시작시간 으로 gno찾기
+  Long findGnoByTitleAndTime(String titleAndTime);
+
+  // 구장이름,경기시작시간 분리
+  String[] parseTitleAndTime(String titleAndTime);
+
+
   // GroundsDTO를 Grounds 엔티티로 변환하는 메서드
   default Map<String, Object> dtoToEntity(GroundsDTO groundsDTO) {
     Map<String, Object> entityMap = new HashMap<>();
@@ -50,6 +60,7 @@ public interface GroundsService {
         .groundstime(groundsDTO.getGroundstime())
         .maxpeople(groundsDTO.getMaxpeople())
         .nowpeople(groundsDTO.getNowpeople())
+        .reservation(groundsDTO.getReservation())
         .info(groundsDTO.getInfo())
         .build();
 
@@ -72,7 +83,7 @@ public interface GroundsService {
   }
 
   // Grounds 엔티티를 GroundsDTO로 변환하는 메서드
-  default GroundsDTO entityToDto(Grounds grounds, List<Gphotos> gphotosList, Long nowpeople, Long greviewsCnt) {
+  default GroundsDTO entityToDto(Grounds grounds, List<Gphotos> gphotosList, Long nowpeople, Long reviewsCnt) {
     // GroundsDTO 객체 생성
     GroundsDTO groundsDTO = GroundsDTO.builder()
         .gno(grounds.getGno())
@@ -84,8 +95,9 @@ public interface GroundsService {
         .groundstime(grounds.getGroundstime())
         .maxpeople(grounds.getMaxpeople())
         .nowpeople(grounds.getNowpeople())
+        .reservation(grounds.getReservation())
         .info(grounds.getInfo())
-        .greviewsCnt(greviewsCnt)
+        .reviewsCnt(reviewsCnt)
         .regDate(grounds.getRegDate())
         .modDate(grounds.getModDate())
         .build();

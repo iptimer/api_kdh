@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
 import java.util.Map;
 
 @RestController
@@ -21,7 +22,28 @@ public class MembersController {
   @PostMapping(value="/join")
   public ResponseEntity<Long> register(@RequestBody MembersDTO membersDTO) {
     log.info("Request to register member: " + membersDTO);
+
+    // 기본 권한 ROLE_USER 추가
+    if (membersDTO.getRoleSet() == null) {
+      membersDTO.setRoleSet(new HashSet<>());
+    }
+    membersDTO.getRoleSet().add("ROLE_USER");
     Long mid = membersService.registerMembers(membersDTO);
+
+    return new ResponseEntity<>(mid, HttpStatus.OK);
+  }
+
+  @PostMapping(value="/bjoin")
+  public ResponseEntity<Long> bregister(@RequestBody MembersDTO membersDTO) {
+    log.info("Request to register member: " + membersDTO);
+
+    // 기본 권한 ROLE_USER 추가
+    if (membersDTO.getRoleSet() == null) {
+      membersDTO.setRoleSet(new HashSet<>());
+    }
+    membersDTO.getRoleSet().add("ROLE_MANAGER");
+    Long mid = membersService.registerMembers(membersDTO);
+
     return new ResponseEntity<>(mid, HttpStatus.OK);
   }
 
@@ -67,4 +89,57 @@ public class MembersController {
     Map<String, String> response = Map.of("message", "cash charged");
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
+
+  @PostMapping(value = "/updateLikes", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<Map<String, String>> updateLikes(@RequestBody Map<String, Object> likeData) {
+    String email = (String) likeData.get("email");
+    Long gno = null;
+
+    // gno가 String으로 전달될 경우를 고려하여 Long으로 변환
+    if (likeData.get("gno") instanceof String) {
+      gno = Long.parseLong((String) likeData.get("gno"));
+    } else if (likeData.get("gno") instanceof Number) {
+      gno = ((Number) likeData.get("gno")).longValue();
+    }
+
+    if (gno == null) {
+      log.warn("gno value is missing in the request");
+      return new ResponseEntity<>(Map.of("error", "gno value is missing"), HttpStatus.BAD_REQUEST);
+    }
+
+    log.info("updateLikes... email: " + email + ", gno: " + gno);
+
+    membersService.addLikes(email, gno);
+    Map<String, String> response = Map.of("message", "likes updated");
+
+    return new ResponseEntity<>(response, HttpStatus.OK);
+  }
+
+
+  @PostMapping(value = "/removeLike", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<Map<String, String>> removeLikes(@RequestBody Map<String, Object> likeData) {
+    String email = (String) likeData.get("email");
+    Long gno = null;
+
+    // gno가 String으로 전달될 경우를 고려하여 Long으로 변환
+    if (likeData.get("gno") instanceof String) {
+      gno = Long.parseLong((String) likeData.get("gno"));
+    } else if (likeData.get("gno") instanceof Number) {
+      gno = ((Number) likeData.get("gno")).longValue();
+    }
+
+    if (gno == null) {
+      log.warn("gno value is missing in the request");
+      return new ResponseEntity<>(Map.of("error", "gno value is missing"), HttpStatus.BAD_REQUEST);
+    }
+
+    log.info("removeLike... email: " + email + ", gno: " + gno);
+
+    membersService.removeLike(email, gno);
+    Map<String, String> response = Map.of("message", "like removed");
+
+    return new ResponseEntity<>(response, HttpStatus.OK);
+  }
+
+
 }

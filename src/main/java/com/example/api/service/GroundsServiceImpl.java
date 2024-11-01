@@ -35,6 +35,21 @@ public class GroundsServiceImpl implements GroundsService {
   private final GroundsReviewsRepository groundsreviewsRepository;
   private final MembersRepository membersRepository;
 
+
+  @Override
+  public void makeReservation(Long groundId) {
+    Grounds grounds = groundsRepository.findById(groundId)
+        .orElseThrow(() -> new RuntimeException("Ground not found"));
+
+    // 예약 가능 여부 확인
+    if (grounds.canReserve()) {
+      grounds.incrementNowPeople(); // 현재 인원 수 증가
+      groundsRepository.save(grounds); // DB에 저장
+    } else {
+      throw new RuntimeException("예약이 마감되었습니다."); // 예외 처리
+    }
+  }
+
   @Override
   public Long register(GroundsDTO groundsDTO) {
 
@@ -72,14 +87,14 @@ public class GroundsServiceImpl implements GroundsService {
         gphotosList.add(gphoto);
       }
       Long nowpeople = null;
-      Long greviewsCnt = null;
+      Long reviewsCnt = null;
       if (objects[2] instanceof Number) {
         nowpeople = ((Number) objects[2]).longValue();
       }
       if (objects[3] instanceof Number) {
-        greviewsCnt = ((Number) objects[3]).longValue();
+        reviewsCnt = ((Number) objects[3]).longValue();
       }
-      return entityToDto(grounds, gphotosList, nowpeople, greviewsCnt);
+      return entityToDto(grounds, gphotosList, nowpeople, reviewsCnt);
     };
 
     return new PageResultDTO<>(result, fn);
@@ -93,9 +108,9 @@ public class GroundsServiceImpl implements GroundsService {
     List<Gphotos> gphotos = new ArrayList<>();
     result.forEach(objects -> gphotos.add((Gphotos) objects[1]));
     Long nowpeople = (Long) result.get(0)[2];
-    Long greviewsCnt = (Long) result.get(0)[3];
+    Long groundsreviewsCnt = (Long) result.get(0)[3];
 
-    return entityToDto(grounds, gphotos, nowpeople, greviewsCnt);
+    return entityToDto(grounds, gphotos, nowpeople, groundsreviewsCnt);
   }
 
   @Value("${com.example.upload.path}")
@@ -109,6 +124,7 @@ public class GroundsServiceImpl implements GroundsService {
       Map<String, Object> entityMap = dtoToEntity(groundsDTO);
       Grounds grounds = (Grounds) entityMap.get("grounds");
       grounds.changeGtitle(groundsDTO.getGtitle());
+      grounds.changeReservation(groundsDTO.getReservation());
       groundsRepository.save(grounds);
       // gphotosList :: 수정창에서 이미지 수정할 게 있는 경우의 목록
       List<Gphotos> newGphotosList =
@@ -186,5 +202,36 @@ public class GroundsServiceImpl implements GroundsService {
     log.info("deleteImage... uuid: " + uuid);
     gphotosRepository.deleteByUuid(uuid);
   }
+
+
+
+
+  public String[] parseTitleAndTime(String titleAndTime) {
+    int openParenIndex = titleAndTime.indexOf(" (");
+    int closeParenIndex = titleAndTime.indexOf(")");
+
+    if (openParenIndex == -1 || closeParenIndex == -1) {
+      throw new IllegalArgumentException("Invalid format: " + titleAndTime);
+    }
+
+    // gtitle과 groundstime을 분리하여 배열로 반환
+    String gtitle = titleAndTime.substring(0, openParenIndex).trim();
+    String groundstime = titleAndTime.substring(openParenIndex + 2, closeParenIndex).trim();
+
+    return new String[]{gtitle, groundstime};
+  }
+
+  // Service 클래스 내부에 추가
+  public Long findGnoByTitleAndTime(String titleAndTime) {
+    // 문자열을 파싱하여 gtitle과 groundstime을 배열로 받음
+    String[] parsed = parseTitleAndTime(titleAndTime);
+    String gtitle = parsed[0];
+    String groundstime = parsed[1];
+
+    // gtitle과 groundstime을 사용해 gno를 검색
+    return groundsRepository.findGnoByGtitleAndGroundstime(gtitle, groundstime)
+        .orElseThrow(() -> new RuntimeException("Ground not found for title: " + gtitle + " and time: " + groundstime));
+  }
+
 
 }

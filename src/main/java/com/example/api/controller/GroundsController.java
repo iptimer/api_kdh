@@ -28,8 +28,12 @@ public class GroundsController {
   private String uploadPath;
 
   private void typeKeywordInit(PageRequestDTO pageRequestDTO) {
-    if (pageRequestDTO.getType().equals("null")) pageRequestDTO.setType("");
-    if (pageRequestDTO.getKeyword().equals("null")) pageRequestDTO.setKeyword("");
+    if (pageRequestDTO.getType() == null || pageRequestDTO.getType().equals("null")) {
+      pageRequestDTO.setType("");
+    }
+    if (pageRequestDTO.getKeyword() == null || pageRequestDTO.getKeyword().equals("null")) {
+      pageRequestDTO.setKeyword("");
+    }
   }
 
   @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -93,4 +97,28 @@ public class GroundsController {
     result.put("keyword", pageRequestDTO.getKeyword() + "");
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
+
+  // 예약 생성 메서드 추가
+  @PostMapping("/{gno}/reservations")
+  public ResponseEntity<String> createReservation(@PathVariable Long groundId) {
+    try {
+      groundsService.makeReservation(groundId);
+      return ResponseEntity.ok("예약이 완료되었습니다.");
+    } catch (RuntimeException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+  }
+
+  // 경기시간과 구장이름으로 gno 검색
+  @GetMapping("/gno")
+  public ResponseEntity<Long> getGnoByGtitleAndGroundstime(
+      @RequestParam String gtitle,
+      @RequestParam String groundstime) {
+
+    Long gno = groundsService.findGnoByTitleAndTime(gtitle + " (" + groundstime + ")");
+    return ResponseEntity.ok(gno);
+  }
+
+
+
 }
